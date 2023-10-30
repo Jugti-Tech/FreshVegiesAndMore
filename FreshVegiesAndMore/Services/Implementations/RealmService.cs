@@ -1,10 +1,5 @@
 ﻿
 
-
-
-using Realms.Sync.ErrorHandling;
-using Realms.Sync.Exceptions;
-
 namespace FreshVegiesAndMore.Services.Implementations
 {
    public class RealmService : IRealmService
@@ -13,17 +8,31 @@ namespace FreshVegiesAndMore.Services.Implementations
         private string appId;
         private string baseUrl;
 
-        Realms.Sync.App RealmApp { get; set; }
+     public Realms.Sync.App RealmApp { get; set; }
 
-        Realms.Sync.User RealmUser { get; set; }
+       public Realms.Sync.User RealmUser { get; set; }
 
-        FlexibleSyncConfiguration SyncConfiguration { get; set; }
+      public  FlexibleSyncConfiguration SyncConfiguration { get; set; }
 
         public RealmService()
         {
             try
             {
+                LoadAppConfiguration();
+                AppConfiguration appConfiguration = new Realms.Sync.AppConfiguration(appId)
+                {
+                    BaseUri=new Uri(baseUrl),
 
+                };
+
+                //Always put log before creating realm app
+                Realms.Logging.Logger.LogLevel = Realms.Logging.LogLevel.Debug;
+                RealmApp = Realms.Sync.App.Create(appConfiguration);
+                RealmUser = RealmApp?.CurrentUser;
+                if(RealmUser!=null)
+                {
+                    LoadSyncConfiguration();
+                }
             }
             catch (Exception ex)
             {
@@ -33,7 +42,7 @@ namespace FreshVegiesAndMore.Services.Implementations
         }
 
 
-       async Task LoadAppConfiguration()
+       void LoadAppConfiguration()
         {
             try
             {
@@ -154,6 +163,11 @@ namespace FreshVegiesAndMore.Services.Implementations
 
                
             }
+        }
+
+        public async Task LoginAsync()
+        {
+            RealmUser = await RealmApp.LogInAsync(Credentials.Anonymous());
         }
     }
 }

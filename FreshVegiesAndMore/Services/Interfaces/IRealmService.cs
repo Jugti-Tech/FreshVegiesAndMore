@@ -6,7 +6,7 @@ namespace FreshVegiesAndMore.Services.Interfaces
 {
    public interface IRealmService
     {
-        Realms.Sync.App RealmApp { get; set; }
+       public Realms.Sync.App RealmApp { get; set; }
 
         Realms.Sync.User RealmUser { get; set; }
 
